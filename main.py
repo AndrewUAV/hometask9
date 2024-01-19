@@ -1,6 +1,6 @@
 import re
 
-info_about_users = {'Andrew': '+380660951381'}
+info_about_users = dict()
 
 def input_error(func):
     def inner():
