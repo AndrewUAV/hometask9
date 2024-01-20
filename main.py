@@ -1,6 +1,6 @@
 import re
 
-info_about_users = {'Andrew': '+380660951381'}
+info_about_users = dict()
 
 def input_error(func):
     def inner():
@@ -82,18 +82,18 @@ def main():
 
     # the main cycle of work
     while True:
-        command = input("Enter a valid command: ").lower()
+        command = input("Enter a valid command: ").lower().strip()
 
         if command == 'hello':
             print(func_hello())
 
-        elif command.startswith('add') and len(command.split(' ')) == 3:
+        elif command.startswith('add ') and len(command.split(' ')) == 3:
             print(func_add(command.removeprefix('add').strip()))
 
-        elif command.startswith('change') and len(command.split(' ')) == 3:
+        elif command.startswith('change ') and len(command.split(' ')) == 3:
             print(func_change(command.removeprefix('change').strip()))
 
-        elif command.startswith('phone') and len(command.split(' ')) == 2:
+        elif command.startswith('phone ') and len(command.split(' ')) == 2:
             print(func_phone(command.removeprefix('phone').strip()))
 
         elif command == "show all":
@@ -108,6 +108,7 @@ def main():
 
         else:
             print("Enter a correct command, please.")
+            continue
 
 if __name__ == '__main__':
     main()
