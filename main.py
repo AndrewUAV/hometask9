@@ -1,6 +1,6 @@
 import re
 
-info_about_users = dict()
+info_about_users = {'Andrew': '+380660951381'}
 
 def input_error(func):
     def inner():
@@ -79,22 +79,6 @@ def main():
 
     # write help messages
     print(get_help())
-
-    # cycle for start work with bot
-    while True:
-        hello_command = input("Please enter a valid command: ").lower()
-
-        if hello_command != 'hello':
-            print("Please enter the valid command!")
-            continue
-
-        elif hello_command in ['good bye', 'close', 'exit']:
-            print(func_quit())
-            break
-
-        else:
-            print(func_hello())
-            break
 
     # the main cycle of work
     while True:
