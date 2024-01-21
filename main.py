@@ -3,22 +3,44 @@ import re
 info_about_users = dict()
 
 def input_error(func):
-    def inner():
+    def inner(*args, **kwargs):
         while True:
             try:
-                result = func()
+                result = func(*args, **kwargs)
                 break
-            except IndexError:
+            except AttributeError:
                 return 'Enter the name and number separated by a space.'
             except ValueError as ve:
                 return f'Error: {ve}'
             except KeyError as ke:
                 return f'Error: {ke}'
-            except Exception as e:
-                return f'Unexpected error: {e}'
         return result
-
     return inner
+
+@input_error
+def parser_command(command):
+    if command == 'hello':
+        return func_hello()
+
+    elif command.startswith('add ') and len(command.split(' ')) == 3:
+        return func_add(command.removeprefix('add').strip())
+
+    elif command.startswith('change ') and len(command.split(' ')) == 3:
+        return func_change(command.removeprefix('change').strip())
+
+    elif command.startswith('phone ') and len(command.split(' ')) == 2:
+        return func_phone(command.removeprefix('phone').strip())
+
+    elif command == "show all":
+        contacts = func_show_all()
+
+        for contact in contacts:
+            print(contact)
+
+    elif command in ["good bye", "close", "exit"]:
+        return func_quit()
+    else:
+        return "Invalid command. Please enter a valid command."
 
 def func_hello():
     return 'How can I help you?'
@@ -26,44 +48,41 @@ def func_hello():
 def validate_phone_number(phone_number):
     pattern = '^[+][0-9]{12}$'
     return bool(re.match(pattern, phone_number))
-
+    
+@input_error
 def func_add(name_and_number):
     name, phone_number = map(str.strip, name_and_number.split(" "))
-
-    if name in info_about_users:
-        return 'Contact already exists. Use "change" command to update the phone number.'
-
-    if not validate_phone_number(phone_number):
-        return 'Invalid phone number format. Try again.'
-
-    info_about_users[name] = phone_number
-    return "Info saved successfully."
-
+    if validate_phone_number(phone_number):
+        info_about_users[name] = phone_number
+        return "Info saved successfully."
+    else:
+        return "Invalid phone format"
+        
+@input_error
 def func_change(name_and_number):
     name, phone_number = map(str.strip, name_and_number.split(" "))
+    if validate_phone_number(phone_number):
+        info_about_users[name] = phone_number
+        return "Info saved successfully."
+    else:
+        return "Invalid phone format"
 
-    if name not in info_about_users:
-        return 'The contact is missing. Use "add" command to add a new contact.'
-
-    if not validate_phone_number(phone_number):
-        return 'Invalid phone number format.'
-
-    info_about_users[name] = phone_number
-    return "Info saved successfully."
-
+@input_error
 def func_phone(name):
-    return info_about_users.get(name, 'The contact is missing.')
+    return info_about_users.get(name, f'The contact "{name}" is missing.')
 
+@input_error
 def func_show_all():
     if info_about_users:
         return [f"{name}: {phone_number}" for name, phone_number in info_about_users.items()]
     else:
         return ['The contact list is empty.']
 
-def func_quit():
-    return "Goodbye!"
 
-def get_help():
+def func_quit():
+    return "Good bye!"
+
+def func_help():
     # function for create start message with help
     return ('Hi! If you want start work just enter "hello"\n' +
             'Number phone start with +38 for UA\n' +
@@ -74,41 +93,17 @@ def get_help():
             '"phone" name\n' +
             '"show all" - for show all information\n' +
             '"good bye", "close", "exit" - for end work')
-@input_error
+
 def main():
+    # print list help
+    print(func_help())
 
-    # write help messages
-    print(get_help())
-
-    # the main cycle of work
     while True:
-        command = input("Enter a valid command: ").lower().strip()
 
-        if command == 'hello':
-            print(func_hello())
-
-        elif command.startswith('add ') and len(command.split(' ')) == 3:
-            print(func_add(command.removeprefix('add').strip()))
-
-        elif command.startswith('change ') and len(command.split(' ')) == 3:
-            print(func_change(command.removeprefix('change').strip()))
-
-        elif command.startswith('phone ') and len(command.split(' ')) == 2:
-            print(func_phone(command.removeprefix('phone').strip()))
-
-        elif command == "show all":
-            contacts = func_show_all()
-
-            for contact in contacts:
-                print(contact)
-
-        elif command in ["good bye", "close", "exit"]:
-            print(func_quit())
+        command = input('Please, enter the valid command: ')
+        print(parser_command(command))
+        if command in ['exit', 'good bye', 'close']:
             break
-
-        else:
-            print("Enter a correct command, please.")
-            continue
 
 if __name__ == '__main__':
     main()
